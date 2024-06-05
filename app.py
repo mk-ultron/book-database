@@ -21,6 +21,7 @@ class Book(Base):
     title = Column(String, nullable=False)
     author_id = Column(Integer, ForeignKey('authors.id'))
     content = Column(BLOB)
+    image_url = Column(String)  # Store the image URL
     author = relationship('Author', back_populates='books')
 
 class User(Base):
@@ -60,14 +61,15 @@ if not session.query(Author).first():
 
 if not session.query(Book).first():
     books = [
-        Book(title='The Unlikely Hero', author_id=1),
-        Book(title='Echoes of the Future', author_id=2),
-        Book(title='The Clockwork Quest', author_id=3),
-        Book(title='The Hidden Underworld', author_id=4),
-        Book(title='The Quest for the Crystal', author_id=5)
+        Book(title='The Unlikely Hero', author_id=1, image_url='https://mk-ultron.github.io/ebook-reader/story-image1.png'),
+        Book(title='Echoes of the Future', author_id=2, image_url='https://mk-ultron.github.io/ebook-reader/story-image2.png'),
+        Book(title='The Clockwork Quest', author_id=3, image_url='https://mk-ultron.github.io/ebook-reader/story-image3.png'),
+        Book(title='The Hidden Underworld', author_id=4, image_url='https://mk-ultron.github.io/ebook-reader/story-image4.png'),
+        Book(title='The Quest for the Crystal', author_id=5, image_url='https://mk-ultron.github.io/ebook-reader/story-image5.png')
     ]
     session.add_all(books)
     session.commit()
+
 
 if not session.query(User).first():
     users = [User(username='user1', password='pass1'), User(username='user2', password='pass2')]
@@ -94,15 +96,16 @@ st.title('AI Fast Fiction Database')
 
 # Display all books and their authors
 st.header('Current Fiction')
-books_authors_ratings = session.query(Book.title, Author.name, func.avg(Review.rating)).join(Author).outerjoin(Review).group_by(Book.id).all()
-for book, author, avg_rating in books_authors_ratings:
+books_authors_ratings = session.query(Book.title, Author.name, Book.image_url, func.avg(Review.rating)).join(Author).outerjoin(Review).group_by(Book.id).all()
+for book, author, image_url, avg_rating in books_authors_ratings:
     col1, col2 = st.columns([1, 3])
     with col1:
-        st.image("https://via.placeholder.com/150")  # Placeholder image, replace with actual book cover URL
+        st.image(image_url)  # Display image from URL
     with col2:
         st.markdown(f"### {book}")
         st.markdown(f"Author: {author}")
         st.markdown(f"Average Rating: {avg_rating:.2f}")
+
 
 # Retrieve all reviews for a specific book
 st.header('Reviews for a Book')

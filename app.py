@@ -1,9 +1,12 @@
 import streamlit as st
-from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, BLOB, Float, CheckConstraint
+from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, BLOB, CheckConstraint, func
 from sqlalchemy.orm import sessionmaker, declarative_base, relationship
 
-# Create the SQL connection to books_db
-conn = st.connection('books_db', type='sql')
+# Create the SQL connection to books_db as specified in your secrets file.
+database_url = st.secrets["connections"]["books_db"]["url"]
+engine = create_engine(database_url)
+Session = sessionmaker(bind=engine)
+session = Session()
 
 Base = declarative_base()
 
@@ -41,10 +44,6 @@ Book.reviews = relationship('Review', order_by=Review.id, back_populates='book')
 User.reviews = relationship('Review', order_by=Review.id, back_populates='user')
 
 # Create tables and insert sample data
-engine = create_engine(st.secrets["connections"]["books_db"]["url"])
-Session = sessionmaker(bind=engine)
-session = Session()
-
 Base.metadata.create_all(engine)
 
 # Insert sample data if not already present

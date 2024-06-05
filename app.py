@@ -90,13 +90,19 @@ if not session.query(Review).first():
     session.add_all(reviews)
     session.commit()
 
-st.title('Online Book App')
+st.title('AI Fast Fiction Database')
 
 # Display all books and their authors
-st.header('Books and Authors')
-books_authors = session.query(Book.title, Author.name).join(Author).all()
-for book, author in books_authors:
-    st.write(f'Book: {book}, Author: {author}')
+st.header('Current Fiction')
+books_authors_ratings = session.query(Book.title, Author.name, func.avg(Review.rating)).join(Author).outerjoin(Review).group_by(Book.id).all()
+for book, author, avg_rating in books_authors_ratings:
+    col1, col2 = st.columns([1, 3])
+    with col1:
+        st.image("https://via.placeholder.com/150")  # Placeholder image, replace with actual book cover URL
+    with col2:
+        st.markdown(f"### {book}")
+        st.markdown(f"Author: {author}")
+        st.markdown(f"Average Rating: {avg_rating:.2f}")
 
 # Retrieve all reviews for a specific book
 st.header('Reviews for a Book')
@@ -104,18 +110,13 @@ book_id = st.number_input('Enter Book ID', min_value=1)
 if st.button('Get Reviews'):
     reviews = session.query(Review.review_text, User.username).join(User).filter(Review.book_id == book_id).all()
     for review, user in reviews:
-        st.write(f'User: {user}, Review: {review}')
+        st.markdown(f"**{user}**")
+        st.markdown(f"{review}")
 
 # Retrieve books that have not been reviewed
 st.header('Books Not Reviewed')
 books_not_reviewed = session.query(Book.title).outerjoin(Review).filter(Review.id == None).all()
 for book in books_not_reviewed:
-    st.write(f'Book: {book[0]}')
-
-# Retrieve the average rating for each book
-st.header('Average Rating for Each Book')
-avg_ratings = session.query(Book.title, func.avg(Review.rating)).join(Review).group_by(Book.id).all()
-for book, rating in avg_ratings:
-    st.write(f'Book: {book}, Average Rating: {rating}')
+    st.markdown(f"{book[0]}")
 
 session.close()

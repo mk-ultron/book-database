@@ -1,6 +1,8 @@
 import streamlit as st
 from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, BLOB, CheckConstraint, func
 from sqlalchemy.orm import sessionmaker, declarative_base, relationship
+from PIL import Image
+import io
 
 # Create the SQL connection to books_db as specified in your secrets file.
 database_url = st.secrets["connections"]["books_db"]["url"]
@@ -21,7 +23,7 @@ class Book(Base):
     title = Column(String, nullable=False)
     author_id = Column(Integer, ForeignKey('authors.id'))
     content = Column(BLOB)
-    image_url = Column(String)  # Store the image URL
+    image_url = Column(String)  # Store the image URL instead of BLOB
     author = relationship('Author', back_populates='books')
 
 class User(Base):
@@ -61,33 +63,36 @@ if not session.query(Author).first():
 
 if not session.query(Book).first():
     books = [
-        Book(title='The Unlikely Hero', author_id=1, image_url='https://mk-ultron.github.io/ebook-reader/story-image1.png'),
-        Book(title='Echoes of the Future', author_id=2, image_url='https://mk-ultron.github.io/ebook-reader/story-image2.png'),
-        Book(title='The Clockwork Quest', author_id=3, image_url='https://mk-ultron.github.io/ebook-reader/story-image3.png'),
-        Book(title='The Hidden Underworld', author_id=4, image_url='https://mk-ultron.github.io/ebook-reader/story-image4.png'),
-        Book(title='The Quest for the Crystal', author_id=5, image_url='https://mk-ultron.github.io/ebook-reader/story-image5.png')
+        Book(title='The Unlikely Hero', author_id=1, image_url='https://example.com/image1.jpg'),
+        Book(title='Echoes of the Future', author_id=2, image_url='https://example.com/image2.jpg'),
+        Book(title='The Clockwork Quest', author_id=3, image_url='https://example.com/image3.jpg'),
+        Book(title='The Hidden Underworld', author_id=4, image_url='https://example.com/image4.jpg'),
+        Book(title='The Quest for the Crystal', author_id=5, image_url='https://example.com/image5.jpg')
     ]
     session.add_all(books)
     session.commit()
 
-
 if not session.query(User).first():
-    users = [User(username='user1', password='pass1'), User(username='user2', password='pass2')]
+    users = [User(username='GalacticGeek', password='pass1'), User(username='SpaceCadet99', password='pass2'), 
+             User(username='CyberPunk42', password='pass3'), User(username='MatrixMaster', password='pass4'), 
+             User(username='SteampunkSally', password='pass5'), User(username='AirshipAdventurer', password='pass6'),
+             User(username='MagicMaven', password='pass7'), User(username='DetectiveDynamo', password='pass8'),
+             User(username='FantasyFanatic', password='pass9'), User(username='KnightOfLore', password='pass10')]
     session.add_all(users)
     session.commit()
 
 if not session.query(Review).first():
     reviews = [
-        Review(book_id=1, user_id=1, rating=5, review_text="GalacticGeek: Kira’s journey from a humble mechanic to a galactic savior is nothing short of inspirational. The plot twists kept me on the edge of my seat!"),
-        Review(book_id=1, user_id=2, rating=4, review_text="SpaceCadet99: A thrilling space opera that combines heart and heroism. Kira is the hero we all need!"),
-        Review(book_id=2, user_id=1, rating=5, review_text="CyberPunk42: Jax’s battle against megacorporations is a gripping cyber adventure. The neon-lit streets of Neo-Tokyo are vividly portrayed!"),
-        Review(book_id=2, user_id=2, rating=4, review_text="MatrixMaster: An exhilarating dive into a digital dystopia. Jax is the perfect rogue hacker hero for this thrilling tale."),
-        Review(book_id=3, user_id=1, rating=5, review_text="SteampunkSally: Elara and Gideon’s quest is filled with clockwork marvels and daring escapades. Gearford is a city that sparks the imagination!"),
-        Review(book_id=3, user_id=2, rating=4, review_text="AirshipAdventurer: A captivating steampunk adventure with brilliant inventions and a race against time. Elara is a fantastic protagonist."),
-        Review(book_id=4, user_id=1, rating=5, review_text="MagicMaven: Lila Blake’s journey through New Avalon’s magical underworld is spellbinding. A perfect blend of mystery and fantasy!"),
-        Review(book_id=4, user_id=2, rating=4, review_text="DetectiveDynamo: A thrilling detective story with a magical twist. Lila’s quest to save New Avalon is a page-turner."),
-        Review(book_id=5, user_id=1, rating=5, review_text="FantasyFanatic: An epic quest filled with danger, magic, and camaraderie. The team’s journey to find the Crystal of Light is legendary!"),
-        Review(book_id=5, user_id=2, rating=4, review_text="KnightOfLore: A fantastic fantasy adventure that will transport you to the realm of Eldoria. The characters and plot are truly enchanting.")
+        Review(book_id=1, user_id=1, rating=5, review_text="Kira’s journey from a humble mechanic to a galactic savior is nothing short of inspirational. The plot twists kept me on the edge of my seat!"),
+        Review(book_id=1, user_id=2, rating=4, review_text="A thrilling space opera that combines heart and heroism. Kira is the hero we all need!"),
+        Review(book_id=2, user_id=3, rating=5, review_text="Jax’s battle against megacorporations is a gripping cyber adventure. The neon-lit streets of Neo-Tokyo are vividly portrayed!"),
+        Review(book_id=2, user_id=4, rating=4, review_text="An exhilarating dive into a digital dystopia. Jax is the perfect rogue hacker hero for this thrilling tale."),
+        Review(book_id=3, user_id=5, rating=5, review_text="Elara and Gideon’s quest is filled with clockwork marvels and daring escapades. Gearford is a city that sparks the imagination!"),
+        Review(book_id=3, user_id=6, rating=4, review_text="A captivating steampunk adventure with brilliant inventions and a race against time. Elara is a fantastic protagonist."),
+        Review(book_id=4, user_id=7, rating=5, review_text="Lila Blake’s journey through New Avalon’s magical underworld is spellbinding. A perfect blend of mystery and fantasy!"),
+        Review(book_id=4, user_id=8, rating=4, review_text="A thrilling detective story with a magical twist. Lila’s quest to save New Avalon is a page-turner."),
+        Review(book_id=5, user_id=9, rating=5, review_text="An epic quest filled with danger, magic, and camaraderie. The team’s journey to find the Crystal of Light is legendary!"),
+        Review(book_id=5, user_id=10, rating=4, review_text="A fantastic fantasy adventure that will transport you to the realm of Eldoria. The characters and plot are truly enchanting.")
     ]
     session.add_all(reviews)
     session.commit()
@@ -96,30 +101,22 @@ st.title('AI Fast Fiction Database')
 
 # Display all books and their authors
 st.header('Current Fiction')
-books_authors_ratings = session.query(Book.title, Author.name, Book.image_url, func.avg(Review.rating)).join(Author).outerjoin(Review).group_by(Book.id).all()
-for book, author, image_url, avg_rating in books_authors_ratings:
-    col1, col2 = st.columns([1, 3])
+books_authors_ratings = session.query(Book.id, Book.title, Author.name, Book.image_url, func.avg(Review.rating)).join(Author).outerjoin(Review).group_by(Book.id).all()
+
+for book_id, book, author, image_url, avg_rating in books_authors_ratings:
+    col1, col2, col3 = st.columns([1, 3, 3])
     with col1:
         st.image(image_url)  # Display image from URL
     with col2:
         st.markdown(f"### {book}")
         st.markdown(f"Author: {author}")
         st.markdown(f"Average Rating: {avg_rating:.2f}")
-
-
-# Retrieve all reviews for a specific book
-st.header('Reviews for a Book')
-book_id = st.number_input('Enter Book ID', min_value=1)
-if st.button('Get Reviews'):
-    reviews = session.query(Review.review_text, User.username).join(User).filter(Review.book_id == book_id).all()
-    for review, user in reviews:
-        st.markdown(f"**{user}**")
-        st.markdown(f"{review}")
-
-# Retrieve books that have not been reviewed
-st.header('Books Not Reviewed')
-books_not_reviewed = session.query(Book.title).outerjoin(Review).filter(Review.id == None).all()
-for book in books_not_reviewed:
-    st.markdown(f"{book[0]}")
+        if st.button('Show Reviews', key=f"button_{book_id}"):
+            col3.empty()
+            reviews = session.query(Review.review_text, User.username).join(User).filter(Review.book_id == book_id).all()
+            with col3:
+                for review, user in reviews:
+                    st.markdown(f"**{user}**")
+                    st.markdown(f"{review}")
 
 session.close()

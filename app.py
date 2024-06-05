@@ -4,9 +4,6 @@ from sqlalchemy.orm import sessionmaker, declarative_base, relationship
 from PIL import Image
 import io
 
-# Set Streamlit page configuration
-st.set_page_config(layout="wide")
-
 # Create the SQL connection to books_db as specified in your secrets file.
 database_url = st.secrets["connections"]["books_db"]["url"]
 engine = create_engine(database_url)
@@ -90,6 +87,8 @@ if not session.query(Review).first():
         Review(book_id=1, user_id=2, rating=4, review_text="A thrilling space opera that combines heart and heroism. Kira is the hero we all need!"),
         Review(book_id=2, user_id=3, rating=5, review_text="Jax’s battle against megacorporations is a gripping cyber adventure. The neon-lit streets of Neo-Tokyo are vividly portrayed!"),
         Review(book_id=2, user_id=4, rating=4, review_text="An exhilarating dive into a digital dystopia. Jax is the perfect rogue hacker hero for this thrilling tale."),
+        Review(book_id=3, user_id=5, rating=5, review_text="Elara and Gideon’s quest is filled with clockwork marvels and daring escapades. Gearford is a city that sparks the imagination!"),
+        Review(book_id=3, user_id=6, rating=4, review_text="A captivating steampunk adventure with brilliant inventions and a race against time. Elara is a fantastic protagonist."),
         Review(book_id=4, user_id=7, rating=5, review_text="Lila Blake’s journey through New Avalon’s magical underworld is spellbinding. A perfect blend of mystery and fantasy!"),
         Review(book_id=4, user_id=8, rating=4, review_text="A thrilling detective story with a magical twist. Lila’s quest to save New Avalon is a page-turner."),
         Review(book_id=5, user_id=9, rating=5, review_text="An epic quest filled with danger, magic, and camaraderie. The team’s journey to find the Crystal of Light is legendary!"),
@@ -120,10 +119,4 @@ for book_id, book, author, image_url, avg_rating in books_authors_ratings:
                     st.markdown(f"**{user}**")
                     st.markdown(f"{review}")
 
-# Retrieve books that have not been reviewed
-st.header('Books Not Reviewed')
-books_not_reviewed = session.query(Book.title).outerjoin(Review).filter(Review.id == None).all()
-for book in books_not_reviewed:
-    st.markdown(f"{book[0]}")
-    
 session.close()

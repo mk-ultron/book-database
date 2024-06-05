@@ -48,17 +48,23 @@ Base.metadata.create_all(engine)
 
 # Insert sample data if not already present
 if not session.query(Author).first():
-    authors = [Author(name='Author 1'), Author(name='Author 2'), Author(name='Author 3')]
+    authors = [
+        Author(name='Aria Starwind'), 
+        Author(name='Ryker Blackwood'), 
+        Author(name='Ivy Gearheart'),
+        Author(name='Luna Nightshade'),
+        Author(name='Thorne Brightblade')
+    ]
     session.add_all(authors)
     session.commit()
 
 if not session.query(Book).first():
     books = [
-        Book(title='Book 1', author_id=1),
-        Book(title='Book 2', author_id=2),
-        Book(title='Book 3', author_id=3),
-        Book(title='Book 4', author_id=1),
-        Book(title='Book 5', author_id=2)
+        Book(title='The Unlikely Hero', author_id=1),
+        Book(title='Echoes of the Future', author_id=2),
+        Book(title='The Clockwork Quest', author_id=3),
+        Book(title='The Hidden Underworld', author_id=4),
+        Book(title='The Quest for the Crystal', author_id=5)
     ]
     session.add_all(books)
     session.commit()
@@ -70,16 +76,16 @@ if not session.query(User).first():
 
 if not session.query(Review).first():
     reviews = [
-        Review(book_id=1, user_id=1, rating=5, review_text='Great book!'),
-        Review(book_id=2, user_id=1, rating=4, review_text='Good read.'),
-        Review(book_id=3, user_id=2, rating=3, review_text='Average.'),
-        Review(book_id=1, user_id=2, rating=4, review_text='Enjoyable.'),
-        Review(book_id=2, user_id=2, rating=5, review_text='Excellent!'),
-        Review(book_id=3, user_id=1, rating=2, review_text='Not my type.'),
-        Review(book_id=4, user_id=2, rating=4, review_text='Well written.'),
-        Review(book_id=5, user_id=1, rating=5, review_text='Amazing book.'),
-        Review(book_id=4, user_id=1, rating=3, review_text='Okay read.'),
-        Review(book_id=5, user_id=2, rating=4, review_text='Good content.')
+        Review(book_id=1, user_id=1, rating=5, review_text="GalacticGeek: Kira’s journey from a humble mechanic to a galactic savior is nothing short of inspirational. The plot twists kept me on the edge of my seat!"),
+        Review(book_id=1, user_id=2, rating=4, review_text="SpaceCadet99: A thrilling space opera that combines heart and heroism. Kira is the hero we all need!"),
+        Review(book_id=2, user_id=1, rating=5, review_text="CyberPunk42: Jax’s battle against megacorporations is a gripping cyber adventure. The neon-lit streets of Neo-Tokyo are vividly portrayed!"),
+        Review(book_id=2, user_id=2, rating=4, review_text="MatrixMaster: An exhilarating dive into a digital dystopia. Jax is the perfect rogue hacker hero for this thrilling tale."),
+        Review(book_id=3, user_id=1, rating=5, review_text="SteampunkSally: Elara and Gideon’s quest is filled with clockwork marvels and daring escapades. Gearford is a city that sparks the imagination!"),
+        Review(book_id=3, user_id=2, rating=4, review_text="AirshipAdventurer: A captivating steampunk adventure with brilliant inventions and a race against time. Elara is a fantastic protagonist."),
+        Review(book_id=4, user_id=1, rating=5, review_text="MagicMaven: Lila Blake’s journey through New Avalon’s magical underworld is spellbinding. A perfect blend of mystery and fantasy!"),
+        Review(book_id=4, user_id=2, rating=4, review_text="DetectiveDynamo: A thrilling detective story with a magical twist. Lila’s quest to save New Avalon is a page-turner."),
+        Review(book_id=5, user_id=1, rating=5, review_text="FantasyFanatic: An epic quest filled with danger, magic, and camaraderie. The team’s journey to find the Crystal of Light is legendary!"),
+        Review(book_id=5, user_id=2, rating=4, review_text="KnightOfLore: A fantastic fantasy adventure that will transport you to the realm of Eldoria. The characters and plot are truly enchanting.")
     ]
     session.add_all(reviews)
     session.commit()

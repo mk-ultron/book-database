@@ -63,11 +63,11 @@ if not session.query(Author).first():
 
 if not session.query(Book).first():
     books = [
-        Book(title='The Unlikely Hero', author_id=1, image_url='https://example.com/image1.jpg'),
-        Book(title='Echoes of the Future', author_id=2, image_url='https://example.com/image2.jpg'),
-        Book(title='The Clockwork Quest', author_id=3, image_url='https://example.com/image3.jpg'),
-        Book(title='The Hidden Underworld', author_id=4, image_url='https://example.com/image4.jpg'),
-        Book(title='The Quest for the Crystal', author_id=5, image_url='https://example.com/image5.jpg')
+        Book(title='The Unlikely Hero', author_id=1, image_url='https://mk-ultron.github.io/ebook-reader/story-image1.png'),
+        Book(title='Echoes of the Future', author_id=2, image_url='https://mk-ultron.github.io/ebook-reader/story-image2.png'),
+        Book(title='The Clockwork Quest', author_id=3, image_url='https://mk-ultron.github.io/ebook-reader/story-image3.png'),
+        Book(title='The Hidden Underworld', author_id=4, image_url='https://mk-ultron.github.io/ebook-reader/story-image4.png'),
+        Book(title='The Quest for the Crystal', author_id=5, image_url='https://mk-ultron.github.io/ebook-reader/story-image5.png')
     ]
     session.add_all(books)
     session.commit()

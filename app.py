@@ -1,8 +1,6 @@
 import streamlit as st
 from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, BLOB, CheckConstraint, func
 from sqlalchemy.orm import sessionmaker, declarative_base, relationship
-from PIL import Image
-import io
 
 # Create the SQL connection to books_db as specified in your secrets file.
 database_url = st.secrets["connections"]["books_db"]["url"]
@@ -52,7 +50,7 @@ Author.books = relationship('Book', order_by=Book.id, back_populates='author')
 Book.reviews = relationship('Review', order_by=Review.id, back_populates='book')
 User.reviews = relationship('Review', order_by=Review.id, back_populates='user')
 
-# Create tables and insert sample data.
+# Create tables and insert sample data
 Base.metadata.create_all(engine)
 
 # Insert sample data if not already present in the authors table.
@@ -88,7 +86,7 @@ if not session.query(User).first():
              User(username='FantasyFanatic', password='pass9'), User(username='KnightOfLore', password='pass10')]
     session.add_all(users)
     session.commit()
-
+    
 # Insert sample data if not already present in the reviews table.
 if not session.query(Review).first():
     reviews = [
@@ -98,14 +96,12 @@ if not session.query(Review).first():
         Review(book_id=2, user_id=4, rating=4, review_text="An exhilarating dive into a digital dystopia. Jax is the perfect rogue hacker hero for this thrilling tale."),
         Review(book_id=3, user_id=5, rating=5, review_text="Elara and Gideon’s quest is filled with clockwork marvels and daring escapades. Gearford is a city that sparks the imagination!"),
         Review(book_id=3, user_id=6, rating=4, review_text="A captivating steampunk adventure with brilliant inventions and a race against time. Elara is a fantastic protagonist."),
-        Review(book_id=4, user_id=7, rating=5, review_text="Lila Blake’s journey through New Avalon’s magical underworld is spellbinding. A perfect blend of mystery and fantasy!"),
-        Review(book_id=4, user_id=8, rating=4, review_text="A thrilling detective story with a magical twist. Lila’s quest to save New Avalon is a page-turner."),
         Review(book_id=5, user_id=9, rating=5, review_text="An epic quest filled with danger, magic, and camaraderie. The team’s journey to find the Crystal of Light is legendary!"),
         Review(book_id=5, user_id=10, rating=4, review_text="A fantastic fantasy adventure that will transport you to the realm of Eldoria. The characters and plot are truly enchanting.")
     ]
     session.add_all(reviews)
     session.commit()
-
+    
 # Streamlit app title
 st.title('AI Fast Fiction Database')
 
@@ -113,7 +109,6 @@ st.title('AI Fast Fiction Database')
 st.header('Current Fiction')
 books_authors_ratings = session.query(Book.id, Book.title, Author.name, Book.image_url, func.avg(Review.rating)).join(Author).outerjoin(Review).group_by(Book.id).all()
 
-# Display each book with its details and reviews
 for book_id, book, author, image_url, avg_rating in books_authors_ratings:
     col1, col2, col3 = st.columns([1, 3, 3])
     with col1:
@@ -121,14 +116,26 @@ for book_id, book, author, image_url, avg_rating in books_authors_ratings:
     with col2:
         st.markdown(f"### {book}")
         st.markdown(f"Author: {author}")
-        st.markdown(f"Average Rating: {avg_rating:.2f}")
+        if avg_rating is not None:
+            st.markdown(f"Average Rating: {avg_rating:.2f}")
+        else:
+            st.markdown("Average Rating: No ratings yet")
         if st.button('Show Reviews', key=f"button_{book_id}"):
-            col3.empty()
             reviews = session.query(Review.review_text, User.username).join(User).filter(Review.book_id == book_id).all()
             with col3:
                 for review, user in reviews:
                     st.markdown(f"**{user}**")
                     st.markdown(f"{review}")
 
-# Close the session to the database
+if st.button('Show Books Without Reviews'):
+    books_not_reviewed = session.query(Book.title, Book.image_url, Author.name).join(Author).outerjoin(Review).filter(Review.id == None).all()
+    st.header('Books Without Reviews')
+    for book, image_url, author in books_not_reviewed:
+        col1, col2 = st.columns([1, 3])
+        with col1:
+            st.image(image_url)  # Display image from URL
+        with col2:
+            st.markdown(f"### {book}")
+            st.markdown(f"Author: {author}")
+
 session.close()

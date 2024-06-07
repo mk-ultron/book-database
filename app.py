@@ -89,8 +89,6 @@ if not session.query(Review).first():
         Review(book_id=2, user_id=4, rating=4, review_text="An exhilarating dive into a digital dystopia. Jax is the perfect rogue hacker hero for this thrilling tale."),
         Review(book_id=3, user_id=5, rating=5, review_text="Elara and Gideon’s quest is filled with clockwork marvels and daring escapades. Gearford is a city that sparks the imagination!"),
         Review(book_id=3, user_id=6, rating=4, review_text="A captivating steampunk adventure with brilliant inventions and a race against time. Elara is a fantastic protagonist."),
-        Review(book_id=4, user_id=7, rating=5, review_text="Lila Blake’s journey through New Avalon’s magical underworld is spellbinding. A perfect blend of mystery and fantasy!"),
-        Review(book_id=4, user_id=8, rating=4, review_text="A thrilling detective story with a magical twist. Lila’s quest to save New Avalon is a page-turner."),
         Review(book_id=5, user_id=9, rating=5, review_text="An epic quest filled with danger, magic, and camaraderie. The team’s journey to find the Crystal of Light is legendary!"),
         Review(book_id=5, user_id=10, rating=4, review_text="A fantastic fantasy adventure that will transport you to the realm of Eldoria. The characters and plot are truly enchanting.")
     ]
@@ -112,11 +110,21 @@ for book_id, book, author, image_url, avg_rating in books_authors_ratings:
         st.markdown(f"Author: {author}")
         st.markdown(f"Average Rating: {avg_rating:.2f}")
         if st.button('Show Reviews', key=f"button_{book_id}"):
-            col3.empty()
             reviews = session.query(Review.review_text, User.username).join(User).filter(Review.book_id == book_id).all()
             with col3:
                 for review, user in reviews:
                     st.markdown(f"**{user}**")
                     st.markdown(f"{review}")
+
+if st.button('Show Books Without Reviews'):
+    books_not_reviewed = session.query(Book.title, Book.image_url, Author.name).join(Author).outerjoin(Review).filter(Review.id == None).all()
+    st.header('Books Without Reviews')
+    for book, image_url, author in books_not_reviewed:
+        col1, col2 = st.columns([1, 3])
+        with col1:
+            st.image(image_url)  # Display image from URL
+        with col2:
+            st.markdown(f"### {book}")
+            st.markdown(f"Author: {author}")
 
 session.close()

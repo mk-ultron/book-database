@@ -108,7 +108,10 @@ for book_id, book, author, image_url, avg_rating in books_authors_ratings:
     with col2:
         st.markdown(f"### {book}")
         st.markdown(f"Author: {author}")
-        st.markdown(f"Average Rating: {avg_rating:.2f}")
+        if avg_rating is not None:
+            st.markdown(f"Average Rating: {avg_rating:.2f}")
+        else:
+            st.markdown("Average Rating: No ratings yet")
         if st.button('Show Reviews', key=f"button_{book_id}"):
             reviews = session.query(Review.review_text, User.username).join(User).filter(Review.book_id == book_id).all()
             with col3:

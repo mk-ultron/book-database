@@ -1,6 +1,7 @@
 import streamlit as st
 from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, BLOB, CheckConstraint, func
 from sqlalchemy.orm import sessionmaker, declarative_base, relationship
+import pandas as pd
 
 # Create the SQL connection to books_db as specified in your secrets file.
 database_url = st.secrets["connections"]["books_db"]["url"]
@@ -23,7 +24,7 @@ class Book(Base):
     id = Column(Integer, primary_key=True)
     title = Column(String, nullable=False)
     author_id = Column(Integer, ForeignKey('authors.id'))
-    content = Column(BLOB)
+    content = Column(BLOB)  # Store the full text of the book
     image_url = Column(String)  # Store the image URL instead of BLOB
     author = relationship('Author', back_populates='books')
 
@@ -32,7 +33,6 @@ class User(Base):
     __tablename__ = 'users'
     id = Column(Integer, primary_key=True)
     username = Column(String, nullable=False)
-    password = Column(String, nullable=False)
 
 # Define the Review model/table.
 class Review(Base):
@@ -50,7 +50,7 @@ Author.books = relationship('Book', order_by=Book.id, back_populates='author')
 Book.reviews = relationship('Review', order_by=Review.id, back_populates='book')
 User.reviews = relationship('Review', order_by=Review.id, back_populates='user')
 
-# Create tables and insert sample data
+# Create tables and insert sample data.
 Base.metadata.create_all(engine)
 
 # Insert sample data if not already present in the authors table.
@@ -68,25 +68,25 @@ if not session.query(Author).first():
 # Insert sample data if not already present in the books table.
 if not session.query(Book).first():
     books = [
-        Book(title='The Unlikely Hero', author_id=1, image_url='https://mk-ultron.github.io/ebook-reader/story-image1.png'),
-        Book(title='Echoes of the Future', author_id=2, image_url='https://mk-ultron.github.io/ebook-reader/story-image2.png'),
-        Book(title='The Clockwork Quest', author_id=3, image_url='https://mk-ultron.github.io/ebook-reader/story-image3.png'),
-        Book(title='The Hidden Underworld', author_id=4, image_url='https://mk-ultron.github.io/ebook-reader/story-image4.png'),
-        Book(title='The Quest for the Crystal', author_id=5, image_url='https://mk-ultron.github.io/ebook-reader/story-image5.png')
+        Book(title='The Unlikely Hero', author_id=1, content=b'Full text of The Unlikely Hero...', image_url='https://mk-ultron.github.io/ebook-reader/story-image1.png'),
+        Book(title='Echoes of the Future', author_id=2, content=b'Full text of Echoes of the Future...', image_url='https://mk-ultron.github.io/ebook-reader/story-image2.png'),
+        Book(title='The Clockwork Quest', author_id=3, content=b'Full text of The Clockwork Quest...', image_url='https://mk-ultron.github.io/ebook-reader/story-image3.png'),
+        Book(title='The Hidden Underworld', author_id=4, content=b'Full text of The Hidden Underworld...', image_url='https://mk-ultron.github.io/ebook-reader/story-image4.png'),
+        Book(title='The Quest for the Crystal', author_id=5, content=b'Full text of The Quest for the Crystal...', image_url='https://mk-ultron.github.io/ebook-reader/story-image5.png')
     ]
     session.add_all(books)
     session.commit()
 
 # Insert sample data if not already present in the users table.
 if not session.query(User).first():
-    users = [User(username='GalacticGeek', password='pass1'), User(username='SpaceCadet99', password='pass2'), 
-             User(username='CyberPunk42', password='pass3'), User(username='MatrixMaster', password='pass4'), 
-             User(username='SteampunkSally', password='pass5'), User(username='AirshipAdventurer', password='pass6'),
-             User(username='MagicMaven', password='pass7'), User(username='DetectiveDynamo', password='pass8'),
-             User(username='FantasyFanatic', password='pass9'), User(username='KnightOfLore', password='pass10')]
+    users = [User(username='GalacticGeek'), User(username='SpaceCadet99'), 
+             User(username='CyberPunk42'), User(username='MatrixMaster'), 
+             User(username='SteampunkSally'), User(username='AirshipAdventurer'),
+             User(username='MagicMaven'), User(username='DetectiveDynamo'),
+             User(username='FantasyFanatic'), User(username='KnightOfLore')]
     session.add_all(users)
     session.commit()
-    
+
 # Insert sample data if not already present in the reviews table.
 if not session.query(Review).first():
     reviews = [
@@ -96,12 +96,14 @@ if not session.query(Review).first():
         Review(book_id=2, user_id=4, rating=4, review_text="An exhilarating dive into a digital dystopia. Jax is the perfect rogue hacker hero for this thrilling tale."),
         Review(book_id=3, user_id=5, rating=5, review_text="Elara and Gideon’s quest is filled with clockwork marvels and daring escapades. Gearford is a city that sparks the imagination!"),
         Review(book_id=3, user_id=6, rating=4, review_text="A captivating steampunk adventure with brilliant inventions and a race against time. Elara is a fantastic protagonist."),
+        Review(book_id=4, user_id=7, rating=5, review_text="Lila Blake’s journey through New Avalon’s magical underworld is spellbinding. A perfect blend of mystery and fantasy!"),
+        Review(book_id=4, user_id=8, rating=4, review_text="A thrilling detective story with a magical twist. Lila’s quest to save New Avalon is a page-turner."),
         Review(book_id=5, user_id=9, rating=5, review_text="An epic quest filled with danger, magic, and camaraderie. The team’s journey to find the Crystal of Light is legendary!"),
         Review(book_id=5, user_id=10, rating=4, review_text="A fantastic fantasy adventure that will transport you to the realm of Eldoria. The characters and plot are truly enchanting.")
     ]
     session.add_all(reviews)
     session.commit()
-    
+
 # Streamlit app title
 st.title('AI Fast Fiction Database')
 
@@ -109,6 +111,7 @@ st.title('AI Fast Fiction Database')
 st.header('Current Fiction')
 books_authors_ratings = session.query(Book.id, Book.title, Author.name, Book.image_url, func.avg(Review.rating)).join(Author).outerjoin(Review).group_by(Book.id).all()
 
+# Display each book with its details and reviews
 for book_id, book, author, image_url, avg_rating in books_authors_ratings:
     col1, col2, col3 = st.columns([1, 3, 3])
     with col1:
@@ -116,26 +119,45 @@ for book_id, book, author, image_url, avg_rating in books_authors_ratings:
     with col2:
         st.markdown(f"### {book}")
         st.markdown(f"Author: {author}")
-        if avg_rating is not None:
-            st.markdown(f"Average Rating: {avg_rating:.2f}")
-        else:
-            st.markdown("Average Rating: No ratings yet")
+        st.markdown(f"Average Rating: {avg_rating:.2f}")
         if st.button('Show Reviews', key=f"button_{book_id}"):
+            col3.empty()
             reviews = session.query(Review.review_text, User.username).join(User).filter(Review.book_id == book_id).all()
             with col3:
                 for review, user in reviews:
                     st.markdown(f"**{user}**")
                     st.markdown(f"{review}")
+        if st.button('Show Full Text', key=f"text_button_{book_id}"):
+            book_content = session.query(Book.content).filter(Book.id == book_id).first()
+            if book_content and book_content[0]:
+                st.text_area(f"Full Text of {book}", book_content[0].decode('utf-8'))
 
-if st.button('Show Books Without Reviews'):
-    books_not_reviewed = session.query(Book.title, Book.image_url, Author.name).join(Author).outerjoin(Review).filter(Review.id == None).all()
-    st.header('Books Without Reviews')
-    for book, image_url, author in books_not_reviewed:
-        col1, col2 = st.columns([1, 3])
-        with col1:
-            st.image(image_url)  # Display image from URL
-        with col2:
-            st.markdown(f"### {book}")
-            st.markdown(f"Author: {author}")
+# Add a section to view raw data from the database
+st.header('View Raw Data')
 
+# Fetch and display data from the authors table
+st.subheader('Authors')
+authors_data = session.query(Author).all()
+authors_df = pd.DataFrame([(author.id, author.name) for author in authors_data], columns=['ID', 'Name'])
+st.dataframe(authors_df)
+
+# Fetch and display data from the books table
+st.subheader('Books')
+books_data = session.query(Book).all()
+books_df = pd.DataFrame([(book.id, book.title, book.author_id, book.image_url) for book in books_data], columns=['ID', 'Title', 'Author ID', 'Image URL'])
+st.dataframe(books_df)
+
+# Fetch and display data from the users table
+st.subheader('Users')
+users_data = session.query(User).all()
+users_df = pd.DataFrame([(user.id, user.username) for user in users_data], columns=['ID', 'Username'])
+st.dataframe(users_df)
+
+# Fetch and display data from the reviews table
+st.subheader('Reviews')
+reviews_data = session.query(Review).all()
+reviews_df = pd.DataFrame([(review.id, review.book_id, review.user_id, review.rating, review.review_text) for review in reviews_data], columns=['ID', 'Book ID', 'User ID', 'Rating', 'Review Text'])
+st.dataframe(reviews_df)
+
+# Close the session to the database
 session.close()

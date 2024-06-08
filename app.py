@@ -3,6 +3,9 @@ from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, BLOB,
 from sqlalchemy.orm import sessionmaker, declarative_base, relationship
 import pandas as pd
 
+# Set Streamlit page configuration
+st.set_page_config(layout="wide")
+
 # Create the SQL connection to books_db as specified in your secrets file.
 database_url = st.secrets["connections"]["books_db"]["url"]
 engine = create_engine(database_url)
@@ -99,31 +102,103 @@ can be found in the most unexpected places.
         Book(
             title='Echoes of the Future',
             author_id=2,
-            content=b'Full text of Echoes of the Future...',
+            content=b"""
+In the sprawling metropolis of Neo-Tokyo, where neon lights illuminate the night sky, a young hacker named Jax navigated the shadows. 
+Jax was renowned for his skills in breaching the most secure systems, but his latest mission was different. A hidden message 
+from the future had been embedded in the city's network, warning of an impending disaster.
+
+Determined to prevent the catastrophe, Jax embarked on a journey through the cybernetic underworld. He faced ruthless megacorporations 
+and rogue AIs, uncovering secrets that revealed a grand conspiracy to control the city's future. With each step, Jax pieced together 
+the puzzle, discovering that the disaster was orchestrated by a powerful entity seeking to rewrite history.
+
+With time running out, Jax teamed up with a group of rebels who believed in a free and open future. Together, they launched a daring 
+assault on the corporation's headquarters, navigating through layers of security and battling cybernetic enforcers.
+
+In a climactic showdown, Jax confronted the mastermind behind the conspiracy. Using his unparalleled hacking abilities, he 
+disrupted the entity's control and exposed the truth to the world. The city of Neo-Tokyo was saved from destruction, and its 
+citizens were freed from the chains of a predetermined fate.
+
+Jax's bravery and intellect became a beacon of hope, inspiring others to fight for their freedom and future. The echoes of his 
+actions resonated through time, reminding all that the future is not set in stone.
+""",
             image_url='https://mk-ultron.github.io/ebook-reader/story-image2.png'
         ),
         Book(
             title='The Clockwork Quest',
             author_id=3,
-            content=b'Full text of The Clockwork Quest...',
+            content=b"""
+In the steampunk city of Gearford, where clockwork machines and steam-powered inventions filled the streets, lived two young 
+inventors named Elara and Gideon. The city was a marvel of engineering, but it was also a place of mystery and danger.
+
+One day, a cryptic message arrived at their workshop, leading them to a hidden map that revealed the location of an ancient 
+artifact known as the Clockwork Heart. This artifact was said to possess the power to bring any machine to life, and many sought 
+it for their own purposes.
+
+Determined to protect the Clockwork Heart from falling into the wrong hands, Elara and Gideon embarked on a perilous quest. 
+They traveled through mechanical jungles, evaded cunning thieves, and solved intricate puzzles that tested their ingenuity and 
+teamwork.
+
+As they drew closer to their goal, they faced the ultimate challenge: a rival inventor who had been pursuing the artifact for 
+his own gain. In a battle of wits and mechanical prowess, Elara and Gideon used their inventions to outsmart their opponent and 
+secure the Clockwork Heart.
+
+Returning to Gearford as heroes, they chose to keep the artifact safe and use its power to improve the lives of the city's 
+inhabitants. Their adventure became a legend, inspiring future generations of inventors to pursue knowledge and innovation for 
+the greater good.
+""",
             image_url='https://mk-ultron.github.io/ebook-reader/story-image3.png'
         ),
         Book(
             title='The Hidden Underworld',
             author_id=4,
-            content=b'Full text of The Hidden Underworld...',
+            content=b"""
+Beneath the bustling streets of New Avalon, a hidden world of magic and mystery thrived. Lila Blake, a skilled detective with 
+a knack for uncovering secrets, was well-acquainted with this underworld. Her latest case, however, would take her deeper than 
+ever before.
+
+A series of disappearances had plagued the city, with each victim leaving behind only a faint trace of magical residue. Lila's 
+investigation led her to an ancient artifact, the Shadow Amulet, which had the power to manipulate the very fabric of reality.
+
+As Lila delved deeper, she uncovered a dark plot by a rogue sorcerer to use the Amulet's power to merge the underworld with the 
+surface, creating a realm where he would reign supreme. With the help of a reformed thief and a scholar of ancient lore, Lila 
+raced against time to stop the sorcerer.
+
+Navigating through enchanted forests, deciphering ancient runes, and facing magical traps, Lila and her companions pressed on. 
+In a final confrontation within the heart of the underworld, Lila's quick thinking and resourcefulness allowed her to reclaim 
+the Amulet and defeat the sorcerer.
+
+The city of New Avalon was saved, and the barrier between the worlds was restored. Lila's bravery and determination earned her 
+renown, and the tales of her exploits in the hidden underworld became a source of inspiration for all who heard them.
+""",
             image_url='https://mk-ultron.github.io/ebook-reader/story-image4.png'
         ),
         Book(
             title='The Quest for the Crystal',
             author_id=5,
-            content=b'Full text of The Quest for the Crystal...',
+            content=b"""
+In the mystical realm of Eldoria, where magic and wonder were woven into the very fabric of reality, a dire prophecy foretold 
+the return of darkness unless a group of heroes could retrieve the legendary Crystal of Light. Among these heroes was Thorne 
+Brightblade, a courageous warrior with a heart of gold.
+
+Joined by a diverse group of adventurers—a skilled mage, a stealthy rogue, and a wise druid—Thorne set out on an epic journey. 
+They traversed enchanted forests, scaled treacherous mountains, and delved into ancient ruins, each step bringing them closer 
+to their goal.
+
+Along the way, they faced formidable foes and forged unbreakable bonds of friendship. They discovered that the Crystal of Light 
+was guarded by a powerful dragon, a creature of both awe and terror. In a climactic battle, Thorne and his companions combined 
+their strengths and knowledge to outwit the dragon and claim the Crystal.
+
+Returning to Eldoria, they used the Crystal's power to dispel the encroaching darkness, restoring peace and balance to the realm. 
+Their quest became the stuff of legends, a testament to the power of unity, courage, and hope.
+
+Thorne's name, along with those of his companions, was etched into the annals of history, reminding all who heard their story 
+that even in the darkest times, the light of heroism can shine through.
+""",
             image_url='https://mk-ultron.github.io/ebook-reader/story-image5.png'
         )
     ]
     session.add_all(books)
     session.commit()
-
 
 # Insert sample data if not already present in the users table.
 if not session.query(User).first():

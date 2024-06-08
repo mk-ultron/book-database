@@ -74,7 +74,7 @@ if not session.query(Book).first():
         Book(
             title='The Unlikely Hero',
             author_id=1,
-            content=b"""
+            content="""
 Once upon a time, in a small village nestled between towering mountains, there lived a humble mechanic named Kira. 
 Kira was known throughout the village for her ability to fix anything, from broken pots to intricate machinery. 
 Despite her talents, she yearned for adventure beyond the confines of her village.
@@ -96,13 +96,13 @@ to achieve greatness.
 
 And so, the tale of Kira, the mechanic turned savior, became a legend told for generations, reminding everyone that heroism 
 can be found in the most unexpected places.
-""",
+""".encode('utf-8'),  # Convert to bytes
             image_url='https://mk-ultron.github.io/ebook-reader/story-image1.png'
         ),
         Book(
             title='Echoes of the Future',
             author_id=2,
-            content=b"""
+            content="""
 In the sprawling metropolis of Neo-Tokyo, where neon lights illuminate the night sky, a young hacker named Jax navigated the shadows. 
 Jax was renowned for his skills in breaching the most secure systems, but his latest mission was different. A hidden message 
 from the future had been embedded in the city's network, warning of an impending disaster.
@@ -120,13 +120,13 @@ citizens were freed from the chains of a predetermined fate.
 
 Jax's bravery and intellect became a beacon of hope, inspiring others to fight for their freedom and future. The echoes of his 
 actions resonated through time, reminding all that the future is not set in stone.
-""",
+""".encode('utf-8'),  # Convert to bytes
             image_url='https://mk-ultron.github.io/ebook-reader/story-image2.png'
         ),
         Book(
             title='The Clockwork Quest',
             author_id=3,
-            content=b"""
+            content="""
 In the steampunk city of Gearford, where clockwork machines and steam-powered inventions filled the streets, lived two young 
 inventors named Elara and Gideon. The city was a marvel of engineering, but it was also a place of mystery and danger.
 
@@ -145,13 +145,13 @@ secure the Clockwork Heart.
 Returning to Gearford as heroes, they chose to keep the artifact safe and use its power to improve the lives of the city's 
 inhabitants. Their adventure became a legend, inspiring future generations of inventors to pursue knowledge and innovation for 
 the greater good.
-""",
+""".encode('utf-8'),  # Convert to bytes
             image_url='https://mk-ultron.github.io/ebook-reader/story-image3.png'
         ),
         Book(
             title='The Hidden Underworld',
             author_id=4,
-            content=b"""
+            content="""
 Beneath the bustling streets of New Avalon, a hidden world of magic and mystery thrived. Lila Blake, a skilled detective with 
 a knack for uncovering secrets, was well-acquainted with this underworld. Her latest case, however, would take her deeper than 
 ever before.
@@ -169,13 +169,13 @@ the Amulet and defeat the sorcerer.
 
 The city of New Avalon was saved, and the barrier between the worlds was restored. Lila's bravery and determination earned her 
 renown, and the tales of her exploits in the hidden underworld became a source of inspiration for all who heard them.
-""",
+""".encode('utf-8'),  # Convert to bytes
             image_url='https://mk-ultron.github.io/ebook-reader/story-image4.png'
         ),
         Book(
             title='The Quest for the Crystal',
             author_id=5,
-            content=b"""
+            content="""
 In the mystical realm of Eldoria, where magic and wonder were woven into the very fabric of reality, a dire prophecy foretold 
 the return of darkness unless a group of heroes could retrieve the legendary Crystal of Light. Among these heroes was Thorne 
 Brightblade, a courageous warrior with a heart of gold.
@@ -193,12 +193,13 @@ Their quest became the stuff of legends, a testament to the power of unity, cour
 
 Thorne's name, along with those of his companions, was etched into the annals of history, reminding all who heard their story 
 that even in the darkest times, the light of heroism can shine through.
-""",
+""".encode('utf-8'),  # Convert to bytes
             image_url='https://mk-ultron.github.io/ebook-reader/story-image5.png'
         )
     ]
     session.add_all(books)
     session.commit()
+```
 
 # Insert sample data if not already present in the users table.
 if not session.query(User).first():

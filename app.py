@@ -68,19 +68,62 @@ if not session.query(Author).first():
 # Insert sample data if not already present in the books table.
 if not session.query(Book).first():
     books = [
-        Book(title='The Unlikely Hero', author_id=1, content=b'The galaxy was at war. Starfleets clashed in the cold void, planets burned, and alliances crumbled. Amidst this chaos, Kira, a lowly mechanic on the barren moon of Kestris, found herself thrust into the heart of the conflict. She had always believed her life would be spent repairing starships and dreaming of adventure, but fate had other plans.
-One fateful day, while scavenging for parts, Kira stumbled upon a crashed escape pod. Inside was a gravely injured alien who identified himself as Prince Thallan, heir to the Throne of Arion, a planet key to the balance of power in the galaxy. The prince carried a message of a greater threat—an ancient, malevolent force from beyond the stars, known as the Voidbringers, poised to conquer and consume all in their path.
-With his dying breath, Prince Thallan entrusted Kira with a data crystal containing vital information that could unite the warring factions against the Voidbringers. Kira, never one to shirk from a challenge, vowed to honor the prince's last wish. She repaired a derelict starfighter, took the crystal, and embarked on a perilous journey.
-Her path was fraught with danger—she faced hostile patrols, treacherous smugglers, and the ever-looming threat of the Voidbringers. Along the way, she forged unlikely alliances with rebels, outlaws, and soldiers from enemy planets. Kira's courage and determination inspired those she met, and her mission quickly became a beacon of hope.
-In the climactic battle, as the Voidbringers descended upon the galaxy, Kira's ragtag fleet, now united, launched a desperate defense. With the help of the data crystal, they discovered the Voidbringers' weakness and struck a decisive blow. The galaxy, though scarred by war, was saved.
-Kira, the mechanic turned hero, had done the impossible. She had united the galaxy and defeated the greatest threat it had ever faced. The war ended, and peace, though fragile, began to bloom. Kira returned to Kestris, but her name would forever be remembered among the stars.', image_url='https://mk-ultron.github.io/ebook-reader/story-image1.png'),
-        Book(title='Echoes of the Future', author_id=2, content=b'Full text of Echoes of the Future...', image_url='https://mk-ultron.github.io/ebook-reader/story-image2.png'),
-        Book(title='The Clockwork Quest', author_id=3, content=b'Full text of The Clockwork Quest...', image_url='https://mk-ultron.github.io/ebook-reader/story-image3.png'),
-        Book(title='The Hidden Underworld', author_id=4, content=b'Full text of The Hidden Underworld...', image_url='https://mk-ultron.github.io/ebook-reader/story-image4.png'),
-        Book(title='The Quest for the Crystal', author_id=5, content=b'Full text of The Quest for the Crystal...', image_url='https://mk-ultron.github.io/ebook-reader/story-image5.png')
+        Book(
+            title='The Unlikely Hero',
+            author_id=1,
+            content=b"""
+Once upon a time, in a small village nestled between towering mountains, there lived a humble mechanic named Kira. 
+Kira was known throughout the village for her ability to fix anything, from broken pots to intricate machinery. 
+Despite her talents, she yearned for adventure beyond the confines of her village.
+
+One day, a mysterious traveler arrived, bearing news of a distant land in peril. The traveler spoke of a prophecy, 
+foretelling that a hero from a humble background would rise to save the kingdom. Intrigued and feeling a sense of destiny, 
+Kira decided to embark on this adventure.
+
+Armed with her tools and unwavering determination, Kira journeyed across treacherous landscapes, facing numerous challenges. 
+She encountered mythical creatures, formed alliances with unlikely companions, and discovered hidden strengths within herself.
+
+As Kira's journey progressed, she uncovered a plot by an evil sorcerer to plunge the kingdom into eternal darkness. 
+With the fate of the kingdom hanging in the balance, Kira confronted the sorcerer in an epic battle of wit and courage. 
+Using her mechanical ingenuity, she managed to outsmart the sorcerer and thwart his plans.
+
+Kira's bravery and resourcefulness not only saved the kingdom but also inspired others to find the hero within themselves. 
+She returned to her village, forever changed by her journey, and was celebrated as the unlikely hero who rose from humble beginnings 
+to achieve greatness.
+
+And so, the tale of Kira, the mechanic turned savior, became a legend told for generations, reminding everyone that heroism 
+can be found in the most unexpected places.
+""",
+            image_url='https://mk-ultron.github.io/ebook-reader/story-image1.png'
+        ),
+        Book(
+            title='Echoes of the Future',
+            author_id=2,
+            content=b'Full text of Echoes of the Future...',
+            image_url='https://mk-ultron.github.io/ebook-reader/story-image2.png'
+        ),
+        Book(
+            title='The Clockwork Quest',
+            author_id=3,
+            content=b'Full text of The Clockwork Quest...',
+            image_url='https://mk-ultron.github.io/ebook-reader/story-image3.png'
+        ),
+        Book(
+            title='The Hidden Underworld',
+            author_id=4,
+            content=b'Full text of The Hidden Underworld...',
+            image_url='https://mk-ultron.github.io/ebook-reader/story-image4.png'
+        ),
+        Book(
+            title='The Quest for the Crystal',
+            author_id=5,
+            content=b'Full text of The Quest for the Crystal...',
+            image_url='https://mk-ultron.github.io/ebook-reader/story-image5.png'
+        )
     ]
     session.add_all(books)
     session.commit()
+
 
 # Insert sample data if not already present in the users table.
 if not session.query(User).first():

@@ -1,6 +1,6 @@
 ## AI Fast Fiction Database
 
-This project is a Streamlit application that showcases a fictional book database. It uses SQLAlchemy for database interactions and stores book data, authors, users, and reviews. The app displays books along with their authors and average ratings, and allows users to view detailed reviews. The application can be viewed on [Streamlit](book-database.streamlit.app/).
+This project is a Streamlit application that showcases a fictional book database. It uses SQLAlchemy for database interactions and stores book data, authors, users, and reviews. The app displays books along with their authors and average ratings, and allows users to view detailed reviews. The application can be viewed on [[Streamlit](https://book-database.streamlit.app/).
 
 ## Features
 

@@ -255,6 +255,17 @@ for book_id, book, author, image_url, avg_rating in books_authors_ratings:
             if book_content and book_content[0]:
                 st.text_area(f"Full Text of {book}", book_content[0].decode('utf-8'))
 
+if st.button('Show Books Without Reviews'):
+    books_not_reviewed = session.query(Book.title, Book.image_url, Author.name).join(Author).outerjoin(Review).filter(Review.id == None).all()
+    st.header('Books Without Reviews')
+    for book, image_url, author in books_not_reviewed:
+        col1, col2 = st.columns([1, 3])
+        with col1:
+            st.image(image_url)  # Display image from URL
+        with col2:
+            st.markdown(f"### {book}")
+            st.markdown(f"Author: {author}")
+            
 # Add a section to view raw data from the database
 st.header('View Raw Data')
 

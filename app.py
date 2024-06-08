@@ -199,7 +199,6 @@ that even in the darkest times, the light of heroism can shine through.
     ]
     session.add_all(books)
     session.commit()
-```
 
 # Insert sample data if not already present in the users table.
 if not session.query(User).first():

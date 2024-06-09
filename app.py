@@ -240,7 +240,6 @@ for book_id, book, author, image_url, avg_rating in books_authors_ratings:
     with col2:
         st.markdown(f"### {book}")
         st.markdown(f"Author: {author}")
-        st.markdown(f"Author: {author}")
         if avg_rating is not None:
             st.markdown(f"Average Rating: {avg_rating:.2f}")
         else:

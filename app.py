@@ -1,5 +1,5 @@
 import streamlit as st
-from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, BLOB, CheckConstraint, func
+from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, VARBINARY, CheckConstraint, func
 from sqlalchemy.orm import sessionmaker, declarative_base, relationship
 import pyodbc
 import pandas as pd
@@ -7,23 +7,23 @@ import pandas as pd
 # Set Streamlit page configuration
 st.set_page_config(layout="wide")
 
-# Initialize connection.
+# Initialize connection using pyodbc.
 @st.cache_resource
 def init_connection():
     return pyodbc.connect(
         "DRIVER={ODBC Driver 17 for SQL Server};SERVER="
         + st.secrets["connections"]["books_db"]["server"]
-        + ";DATABASE="
+        + ",1433;DATABASE="
         + st.secrets["connections"]["books_db"]["database"]
         + ";UID="
         + st.secrets["connections"]["books_db"]["username"]
         + ";PWD="
         + st.secrets["connections"]["books_db"]["password"]
     )
-    
+
 conn = init_connection()
 
-# Perform query.
+# Perform query using pyodbc.
 @st.cache_data(ttl=600)
 def run_query(query):
     with conn.cursor() as cur:
@@ -45,7 +45,7 @@ class Book(Base):
     id = Column(Integer, primary_key=True)
     title = Column(String, nullable=False)
     author_id = Column(Integer, ForeignKey('authors.id'))
-    content = Column(BLOB)  # Store the full text of the book
+    content = Column(VARBINARY(length='max'))  # Use VARBINARY(length='max') for SQL Server
     image_url = Column(String)  # Store the image URL instead of BLOB
     author = relationship('Author', back_populates='books')
 
@@ -72,7 +72,18 @@ Book.reviews = relationship('Review', order_by=Review.id, back_populates='book')
 User.reviews = relationship('Review', order_by=Review.id, back_populates='user')
 
 # Create an SQLAlchemy engine
-engine = create_engine("mssql+pyodbc:///?odbc_connect=" + st.secrets["connections"]["books_db"]["url"])
+database_url = (
+    "mssql+pyodbc://"
+    + st.secrets["connections"]["books_db"]["username"]
+    + ":"
+    + st.secrets["connections"]["books_db"]["password"]
+    + "@"
+    + st.secrets["connections"]["books_db"]["server"]
+    + ":1433/"
+    + st.secrets["connections"]["books_db"]["database"]
+    + "?driver=ODBC+Driver+17+for+SQL+Server"
+)
+engine = create_engine(database_url)
 
 # Create tables and insert sample data.
 Base.metadata.create_all(engine)
@@ -305,33 +316,3 @@ if st.button('Show Books Without Reviews'):
         with col2:
             st.markdown(f"### {book}")
             st.markdown(f"Author: {author}")
-
-# Add a section to view raw data from the database
-st.header('View Raw Data')
-
-# Fetch and display data from the authors table
-st.subheader('Authors')
-authors_data = run_query("SELECT id, name FROM authors")
-authors_df = pd.DataFrame(authors_data, columns=['ID', 'Name'])
-st.dataframe(authors_df)
-
-# Fetch and display data from the books table
-st.subheader('Books')
-books_data = run_query("SELECT id, title, author_id, image_url FROM books")
-books_df = pd.DataFrame(books_data, columns=['ID', 'Title', 'Author ID', 'Image URL'])
-st.dataframe(books_df)
-
-# Fetch and display data from the users table
-st.subheader('Users')
-users_data = run_query("SELECT id, username FROM users")
-users_df = pd.DataFrame(users_data, columns=['ID', 'Username'])
-st.dataframe(users_df)
-
-# Fetch and display data from the reviews table
-st.subheader('Reviews')
-reviews_data = run_query("SELECT id, book_id, user_id, rating, review_text FROM reviews")
-reviews_df = pd.DataFrame(reviews_data, columns=['ID', 'Book ID', 'User ID', 'Rating', 'Review Text'])
-st.dataframe(reviews_df
-
-# Close the session to the database
-session.close()

@@ -1,16 +1,34 @@
 import streamlit as st
 from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, BLOB, CheckConstraint, func
 from sqlalchemy.orm import sessionmaker, declarative_base, relationship
+import pyodbc
 import pandas as pd
 
 # Set Streamlit page configuration
 st.set_page_config(layout="wide")
 
-# Create the SQL connection to books_db as specified in your secrets file.
-database_url = st.secrets["connections"]["books_db"]["url"]
-engine = create_engine(database_url)
-Session = sessionmaker(bind=engine)
-session = Session()
+# Initialize connection.
+@st.cache_resource
+def init_connection():
+    return pyodbc.connect(
+        "DRIVER={ODBC Driver 17 for SQL Server};SERVER="
+        + st.secrets["connections"]["books_db"]["server"]
+        + ";DATABASE="
+        + st.secrets["connections"]["books_db"]["database"]
+        + ";UID="
+        + st.secrets["connections"]["books_db"]["username"]
+        + ";PWD="
+        + st.secrets["connections"]["books_db"]["password"]
+    )
+    
+conn = init_connection()
+
+# Perform query.
+@st.cache_data(ttl=600)
+def run_query(query):
+    with conn.cursor() as cur:
+        cur.execute(query)
+        return cur.fetchall()
 
 # Base class for declarative class definitions.
 Base = declarative_base()
@@ -53,8 +71,13 @@ Author.books = relationship('Book', order_by=Book.id, back_populates='author')
 Book.reviews = relationship('Review', order_by=Review.id, back_populates='book')
 User.reviews = relationship('Review', order_by=Review.id, back_populates='user')
 
+# Create an SQLAlchemy engine
+engine = create_engine("mssql+pyodbc:///?odbc_connect=" + st.secrets["connections"]["books_db"]["url"])
+
 # Create tables and insert sample data.
 Base.metadata.create_all(engine)
+Session = sessionmaker(bind=engine)
+session = Session()
 
 # Insert sample data if not already present in the authors table.
 if not session.query(Author).first():
@@ -230,7 +253,13 @@ st.title('AI Fast Fiction Database')
 
 # Display all books and their authors
 st.header('Current Fiction')
-books_authors_ratings = session.query(Book.id, Book.title, Author.name, Book.image_url, func.avg(Review.rating)).join(Author).outerjoin(Review).group_by(Book.id).all()
+books_authors_ratings = run_query("""
+    SELECT b.id, b.title, a.name, b.image_url, AVG(r.rating)
+    FROM books b
+    JOIN authors a ON b.author_id = a.id
+    LEFT JOIN reviews r ON b.id = r.book_id
+    GROUP BY b.id, b.title, a.name, b.image_url
+""")
 
 # Display each book with its details and reviews
 for book_id, book, author, image_url, avg_rating in books_authors_ratings:
@@ -245,18 +274,29 @@ for book_id, book, author, image_url, avg_rating in books_authors_ratings:
         else:
             st.markdown("Average Rating: No ratings yet")
         if st.button('Show Reviews', key=f"button_{book_id}"):
-            reviews = session.query(Review.review_text, User.username).join(User).filter(Review.book_id == book_id).all()
+            reviews = run_query(f"""
+                SELECT r.review_text, u.username
+                FROM reviews r
+                JOIN users u ON r.user_id = u.id
+                WHERE r.book_id = {book_id}
+            """)
             with col3:
                 for review, user in reviews:
                     st.markdown(f"**{user}**")
                     st.markdown(f"{review}")
         if st.button('Show Full Text', key=f"text_button_{book_id}"):
-            book_content = session.query(Book.content).filter(Book.id == book_id).first()
+            book_content = run_query(f"SELECT content FROM books WHERE id = {book_id}")
             if book_content and book_content[0]:
-                st.text_area(f"Full Text of {book}", book_content[0].decode('utf-8'))
+                st.text_area(f"Full Text of {book}", book_content[0][0].decode('utf-8'))
 
 if st.button('Show Books Without Reviews'):
-    books_not_reviewed = session.query(Book.title, Book.image_url, Author.name).join(Author).outerjoin(Review).filter(Review.id == None).all()
+    books_not_reviewed = run_query("""
+        SELECT b.title, b.image_url, a.name
+        FROM books b
+        JOIN authors a ON b.author_id = a.id
+        LEFT JOIN reviews r ON b.id = r.book_id
+        WHERE r.id IS NULL
+    """)
     st.header('Books Without Reviews')
     for book, image_url, author in books_not_reviewed:
         col1, col2 = st.columns([1, 3])
@@ -265,33 +305,33 @@ if st.button('Show Books Without Reviews'):
         with col2:
             st.markdown(f"### {book}")
             st.markdown(f"Author: {author}")
-            
+
 # Add a section to view raw data from the database
 st.header('View Raw Data')
 
 # Fetch and display data from the authors table
 st.subheader('Authors')
-authors_data = session.query(Author).all()
-authors_df = pd.DataFrame([(author.id, author.name) for author in authors_data], columns=['ID', 'Name'])
+authors_data = run_query("SELECT id, name FROM authors")
+authors_df = pd.DataFrame(authors_data, columns=['ID', 'Name'])
 st.dataframe(authors_df)
 
 # Fetch and display data from the books table
 st.subheader('Books')
-books_data = session.query(Book).all()
-books_df = pd.DataFrame([(book.id, book.title, book.author_id, book.image_url) for book in books_data], columns=['ID', 'Title', 'Author ID', 'Image URL'])
+books_data = run_query("SELECT id, title, author_id, image_url FROM books")
+books_df = pd.DataFrame(books_data, columns=['ID', 'Title', 'Author ID', 'Image URL'])
 st.dataframe(books_df)
 
 # Fetch and display data from the users table
 st.subheader('Users')
-users_data = session.query(User).all()
-users_df = pd.DataFrame([(user.id, user.username) for user in users_data], columns=['ID', 'Username'])
+users_data = run_query("SELECT id, username FROM users")
+users_df = pd.DataFrame(users_data, columns=['ID', 'Username'])
 st.dataframe(users_df)
 
 # Fetch and display data from the reviews table
 st.subheader('Reviews')
-reviews_data = session.query(Review).all()
-reviews_df = pd.DataFrame([(review.id, review.book_id, review.user_id, review.rating, review.review_text) for review in reviews_data], columns=['ID', 'Book ID', 'User ID', 'Rating', 'Review Text'])
-st.dataframe(reviews_df)
+reviews_data = run_query("SELECT id, book_id, user_id, rating, review_text FROM reviews")
+reviews_df = pd.DataFrame(reviews_data, columns=['ID', 'Book ID', 'User ID', 'Rating', 'Review Text'])
+st.dataframe(reviews_df
 
 # Close the session to the database
 session.close()
